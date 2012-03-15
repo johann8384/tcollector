@@ -1,7 +1,12 @@
 #!/bin/bash
-
+#
+# tcollector      tcollector
+#
+# chkconfig: 2345 98 10
+# description: tcollector collects data and submits it to OpenTSDB
+#
 # Semi Universal start-stop script
-
+#
 # TSD_HOST=dns.name.of.tsd
 TCOLLECTOR_PATH=${TCOLLECTOR_PATH-'/usr/local/tcollector'}
 test -n "$TSD_HOST" || {
@@ -13,9 +18,12 @@ HOSTNAME=$(hostname)
 PIDFILE=${PIDFILE-'/var/run/tcollector.pid'}
 PROG=$TCOLLECTOR_PATH/tcollector.py
 COMMAND=$1
-shift
 ARGS="-c $TCOLLECTOR_PATH/collectors -H $TSD_HOST -t host=$HOSTNAME -P $PIDFILE --backup_count=5"
-ARGS="$ARGS $@"
+
+# Populate with a config file if necessary
+if test -f "$TCOLLECTOR_PATH/config"; then
+    source "$TCOLLECTOR_PATH/config"
+fi
 
 # Sanity checks.
 test -d "$TCOLLECTOR_PATH" || {
