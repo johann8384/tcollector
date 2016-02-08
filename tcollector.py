@@ -33,6 +33,7 @@ import subprocess
 import sys
 import threading
 import time
+import platform
 import json
 import urllib2
 import base64
@@ -805,13 +806,29 @@ def setup_logging(logfile=DEFAULT_LOG, max_bytes=None, backup_count=None):
                                       '%(levelname)s: %(message)s'))
     LOG.addHandler(ch)
 
+def get_default_cdir(platform):
+    default_cdir = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
+                                'collectors')
+
+    if platform.system() == 'Darwin':
+        osx_cdir = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
+                                    'osx/collectors')
+        if os.path.isdir(default_cdir:
+            default_cdir = osx_cdir
+    else if platform.system() == 'FreeBSD':
+        freebsd_cdir = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
+                                    'freebsd/collectors')
+        if os.path.isdir(default_cdir:
+            default_cdir = freebsd_cdir
+
+    return default_cdir
 
 def parse_cmdline(argv):
     """Parses the command-line."""
 
     # get arguments
-    default_cdir = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                                'collectors')
+    default_cdir = get_default_cdir(platform.system())
+
     parser = OptionParser(description='Manages collectors which gather '
                                        'data and report back.')
     parser.add_option('-c', '--collector-dir', dest='cdir', metavar='DIR',
